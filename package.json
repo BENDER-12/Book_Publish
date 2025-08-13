@@ -1,0 +1,14 @@
+{
+  "name": "book_publish_myana",
+  "private": true,
+  "version": "0.0.0",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "bash -lc 'unset npm_config_prefix; export NVM_DIR=\"$HOME/.nvm\"; [ -s \"$NVM_DIR/nvm.sh\" ] && . \"$NVM_DIR/nvm.sh\"; nvm use 22 >/dev/null; cd /home/bharath-kanth/Projects/BOOK_PUBLISH_MYANA/Client && npm run dev -- --host'",
+    "build": "bash -lc 'unset npm_config_prefix; export NVM_DIR=\"$HOME/.nvm\"; [ -s \"$NVM_DIR/nvm.sh\" ] && . \"$NVM_DIR/nvm.sh\"; nvm use 22 >/dev/null; cd /home/bharath-kanth/Projects/BOOK_PUBLISH_MYANA/Client && npm run build'",
+    "preview": "bash -lc 'unset npm_config_prefix; export NVM_DIR=\"$HOME/.nvm\"; [ -s \"$NVM_DIR/nvm.sh\" ] && . \"$NVM_DIR/nvm.sh\"; nvm use 22 >/dev/null; cd /home/bharath-kanth/Projects/BOOK_PUBLISH_MYANA/Client && npm run preview -- --host'",
+    "install:client": "bash -lc 'cd /home/bharath-kanth/Projects/BOOK_PUBLISH_MYANA/Client && npm i'"
+  }
+} 
