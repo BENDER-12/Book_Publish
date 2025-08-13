@@ -73,7 +73,7 @@ export default function Login() {
     <div className="login-page">
       <div className="login-wrap">
         <div className="left-panel">
-          <h1 className="hero-title">Write Wise & Gain Wisdom</h1>
+          <h1 className="hero-title">Write Wise & Gain Wisdom</h1>-m 
           <p className="hero-copy">Please use your credentials to login. If you are not a member, please register.</p>
           <img className="panel-image" src={Illustration} alt="Reading illustration" />
         </div>
