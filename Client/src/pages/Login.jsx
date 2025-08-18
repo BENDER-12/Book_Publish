@@ -44,7 +44,7 @@ export default function Login() {
       } else {
         await createUserWithEmailAndPassword(auth, email, password)
       }
-      navigate('/')
+      navigate('/dashboard')
     } catch (err) {
       setError(mapError(err?.code) + (err?.code ? ` (${err.code})` : ''))
     } finally {
