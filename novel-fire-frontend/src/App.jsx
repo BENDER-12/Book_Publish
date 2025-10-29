@@ -11,6 +11,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import ReaderDashboard from './pages/ReaderDashboard';
 import Books from './pages/Books';
 import BookDetails from './pages/BookDetails';
 import Library from './pages/Library';
@@ -22,6 +23,8 @@ import ManageChapters from './pages/ManageChapters';
 import AuthorDashboard from './pages/AuthorDashboard';
 import Reader from './pages/Reader';
 import Favorite from './pages/Favorite';
+import AdminDashboard from './pages/AdminDashboard';
+import Notifications from './pages/Notifications';
 
 function App() {
   return (
@@ -45,9 +48,9 @@ function App() {
               <Route
                 path="/dashboard"
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute roles={["reader"]}>
                     <Layout>
-                      <Dashboard />
+                      <ReaderDashboard />
                     </Layout>
                   </ProtectedRoute>
                 }
@@ -137,9 +140,29 @@ function App() {
               <Route
                 path="/author-dashboard"
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute roles={["author","admin"]}>
                     <Layout>
                       <AuthorDashboard />
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedRoute roles={["admin"]}>
+                    <Layout>
+                      <AdminDashboard />
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/notifications"
+                element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <Notifications />
                     </Layout>
                   </ProtectedRoute>
                 }

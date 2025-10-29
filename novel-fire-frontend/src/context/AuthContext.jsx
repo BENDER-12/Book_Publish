@@ -98,11 +98,17 @@ export const AuthProvider = ({ children }) => {
     const user = localStorage.getItem('user');
     
     if (token && user) {
+      const parsedUser = JSON.parse(user);
       dispatch({
         type: 'LOGIN_SUCCESS',
         payload: {
           token,
-          user: JSON.parse(user),
+          user: {
+            _id: parsedUser._id,
+            name: parsedUser.name,
+            email: parsedUser.email,
+            role: parsedUser.role,
+          },
         },
       });
     }
@@ -121,6 +127,7 @@ export const AuthProvider = ({ children }) => {
         _id: data._id,
         name: data.name,
         email: data.email,
+        role: data.role,
       }));
       
       dispatch({
@@ -131,6 +138,7 @@ export const AuthProvider = ({ children }) => {
             _id: data._id,
             name: data.name,
             email: data.email,
+            role: data.role,
           },
         },
       });
@@ -185,6 +193,7 @@ export const AuthProvider = ({ children }) => {
         _id: data._id,
         name: data.name,
         email: data.email,
+        role: data.role,
       }));
       
       dispatch({
@@ -195,6 +204,7 @@ export const AuthProvider = ({ children }) => {
             _id: data._id,
             name: data.name,
             email: data.email,
+            role: data.role,
           },
         },
       });

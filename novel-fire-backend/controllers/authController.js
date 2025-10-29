@@ -8,7 +8,7 @@ const { sendOTPEmail, sendWelcomeEmail } = require('../utils/emailService');
 // @route   POST /api/auth/register
 // @access  Public
 const register = asyncHandler(async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, role } = req.body;
   
   // Check if user already exists
   const userExists = await User.findOne({ email });
@@ -21,10 +21,12 @@ const register = asyncHandler(async (req, res) => {
   const { otp, expiresAt } = generateOTPWithExpiry(10); // 10 minutes expiry
 
   // Create user with OTP (not verified yet)
+  const assignedRole = ['reader', 'author'].includes(role) ? role : 'reader';
   const user = await User.create({ 
     name, 
     email, 
     password,
+    role: assignedRole,
     otp,
     otpExpires: expiresAt,
     isEmailVerified: false
@@ -93,6 +95,7 @@ const verifyOTP = asyncHandler(async (req, res) => {
     _id: user._id,
     name: user.name,
     email: user.email,
+    role: user.role || 'reader',
     token: generateToken(user._id),
     message: 'Email verified successfully!'
   });
@@ -158,6 +161,7 @@ const login = asyncHandler(async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
+      role: user.role || 'reader',
       token: generateToken(user._id),
     });
   } else {

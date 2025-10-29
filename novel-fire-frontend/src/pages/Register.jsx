@@ -11,12 +11,14 @@ const Register = () => {
     email: '',
     password: '',
     confirmPassword: '',
+    role: 'reader',
   });
+
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [showOTPVerification, setShowOTPVerification] = useState(false);
   const [verificationData, setVerificationData] = useState(null);
-  
+
   const { register, loading, error, pendingVerification } = useAuth();
   const navigate = useNavigate();
 
@@ -36,41 +38,46 @@ const Register = () => {
 
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (!formData.name.trim()) {
       newErrors.name = 'Name is required';
     }
-    
+
     if (!formData.email.trim()) {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Email is invalid';
     }
-    
+
     if (!formData.password) {
       newErrors.password = 'Password is required';
     } else if (formData.password.length < 6) {
       newErrors.password = 'Password must be at least 6 characters';
     }
-    
+
     if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match';
     }
-    
+
+    if (!['reader', 'author'].includes(formData.role)) {
+      newErrors.role = 'Please select a valid role';
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
-    
+
     try {
       const data = await register({
         name: formData.name,
         email: formData.email,
         password: formData.password,
+        role: formData.role,
       });
       setVerificationData({
         userId: data.userId,
@@ -83,7 +90,7 @@ const Register = () => {
   };
 
   const handleVerificationComplete = () => {
-     navigate('/favorite');
+    navigate('/favorite');
   };
 
   // Show OTP verification screen if needed
@@ -108,7 +115,6 @@ const Register = () => {
               <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Novashelf</span>
             </div>
 
-            
             <h1 className="mt-4 text-3xl font-semibold text-gray-900 dark:text-gray-100">Join our community of readers and authors</h1>
             <p className="mt-3 text-gray-600 dark:text-gray-300">
               Create an account to build your library, publish your books, and track your reading journey.
@@ -143,130 +149,158 @@ const Register = () => {
             </div>
 
             <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-            <div className="space-y-4">
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
-                  Full Name
-                </label>
-                <input
-                  id="name"
-                  name="name"
-                  type="text"
-                  required
-                  className={`mt-1 block w-full rounded-md border bg-white dark:bg-gray-900 px-3 py-2 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${errors.name ? 'border-red-300 dark:border-red-900' : 'border-gray-300 dark:border-gray-700'}`}
-                  placeholder="Enter your full name"
-                  value={formData.name}
-                  onChange={handleChange}
-                />
-                {errors.name && (
-                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.name}</p>
-                )}
-              </div>
-
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
-                  Email Address
-                </label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  className={`mt-1 block w-full rounded-md border bg-white dark:bg-gray-900 px-3 py-2 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${errors.email ? 'border-red-300 dark:border-red-900' : 'border-gray-300 dark:border-gray-700'}`}
-                  placeholder="Enter your email"
-                  value={formData.email}
-                  onChange={handleChange}
-                />
-                {errors.email && (
-                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.email}</p>
-                )}
-              </div>
-
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
-                  Password
-                </label>
-                <div className="relative mt-1">
+              <div className="space-y-4">
+                <div>
+                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
+                    Full Name
+                  </label>
                   <input
-                    id="password"
-                    name="password"
-                    type={showPassword ? 'text' : 'password'}
+                    id="name"
+                    name="name"
+                    type="text"
                     required
-                    className={`block w-full rounded-md border bg-white dark:bg-gray-900 px-3 py-2 pr-10 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${errors.password ? 'border-red-300 dark:border-red-900' : 'border-gray-300 dark:border-gray-700'}`}
-                    placeholder="Enter your password"
-                    value={formData.password}
+                    className={`mt-1 block w-full rounded-md border bg-white dark:bg-gray-900 px-3 py-2 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${errors.name ? 'border-red-300 dark:border-red-900' : 'border-gray-300 dark:border-gray-700'}`}
+                    placeholder="Enter your full name"
+                    value={formData.name}
                     onChange={handleChange}
                   />
-                  <button
-                    type="button"
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                    onClick={() => setShowPassword(!showPassword)}
-                    aria-label="Toggle password visibility"
-                  >
-                    {showPassword ? (
-                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
-                    ) : (
-                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
-                      </svg>
-                    )}
-                  </button>
+                  {errors.name && (
+                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.name}</p>
+                  )}
                 </div>
-                {errors.password && (
-                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.password}</p>
-                )}
+
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
+                    Email Address
+                  </label>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    required
+                    className={`mt-1 block w-full rounded-md border bg-white dark:bg-gray-900 px-3 py-2 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${errors.email ? 'border-red-300 dark:border-red-900' : 'border-gray-300 dark:border-gray-700'}`}
+                    placeholder="Enter your email"
+                    value={formData.email}
+                    onChange={handleChange}
+                  />
+                  {errors.email && (
+                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.email}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
+                    Password
+                  </label>
+                  <div className="relative mt-1">
+                    <input
+                      id="password"
+                      name="password"
+                      type={showPassword ? 'text' : 'password'}
+                      required
+                      className={`block w-full rounded-md border bg-white dark:bg-gray-900 px-3 py-2 pr-10 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${errors.password ? 'border-red-300 dark:border-red-900' : 'border-gray-300 dark:border-gray-700'}`}
+                      placeholder="Enter your password"
+                      value={formData.password}
+                      onChange={handleChange}
+                    />
+                    <button
+                      type="button"
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                      onClick={() => setShowPassword(!showPassword)}
+                      aria-label="Toggle password visibility"
+                    >
+                      {showPassword ? (
+                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                      ) : (
+                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                  {errors.password && (
+                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.password}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
+                    Confirm Password
+                  </label>
+                  <input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type="password"
+                    required
+                    className={`mt-1 block w-full rounded-md border bg-white dark:bg-gray-900 px-3 py-2 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${errors.confirmPassword ? 'border-red-300 dark:border-red-900' : 'border-gray-300 dark:border-gray-700'}`}
+                    placeholder="Confirm your password"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                  />
+                  {errors.confirmPassword && (
+                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.confirmPassword}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Role</label>
+                  <div className="mt-2 flex items-center gap-4">
+                    <label className="inline-flex items-center gap-2 text-sm">
+                      <input
+                        type="radio"
+                        name="role"
+                        value="reader"
+                        checked={formData.role === 'reader'}
+                        onChange={handleChange}
+                      />
+                      Reader
+                    </label>
+                    <label className="inline-flex items-center gap-2 text-sm">
+                      <input
+                        type="radio"
+                        name="role"
+                        value="author"
+                        checked={formData.role === 'author'}
+                        onChange={handleChange}
+                      />
+                      Author
+                    </label>
+                  </div>
+                  {errors.role && (
+                    <p className="mt-1 text-sm text-red-600">{errors.role}</p>
+                  )}
+                </div>
               </div>
+
+              {error && (
+                <div className="rounded-md bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 p-3">
+                  <div className="text-sm text-red-800 dark:text-red-300">{error}</div>
+                </div>
+              )}
 
               <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
-                  Confirm Password
-                </label>
-                <input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type="password"
-                  required
-                  className={`mt-1 block w-full rounded-md border bg-white dark:bg-gray-900 px-3 py-2 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${errors.confirmPassword ? 'border-red-300 dark:border-red-900' : 'border-gray-300 dark:border-gray-700'}`}
-                  placeholder="Confirm your password"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                />
-                {errors.confirmPassword && (
-                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.confirmPassword}</p>
-                )}
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="btn btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loading ? 'Creating account...' : 'Create account'}
+                </button>
               </div>
-            </div>
-
-            {error && (
-              <div className="rounded-md bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 p-3">
-                <div className="text-sm text-red-800 dark:text-red-300">{error}</div>
+              <div>
+                <Link
+                  to="/login"
+                  className="btn btn-secondary w-full mt-3 inline-flex justify-center"
+                >
+                  I already have an account
+                </Link>
               </div>
-            )}
-
-            <div>
-              <button
-                type="submit"
-                disabled={loading}
-                className="btn btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {loading ? 'Creating account...' : 'Create account'}
-              </button>
-            </div>
-            <div>
-              <Link
-                to="/login"
-                className="btn btn-secondary w-full mt-3 inline-flex justify-center"
-              >
-                I already have an account
-              </Link>
-            </div>
             </form>
 
-            {/* Divider */
-}
+            {/* Divider */}
             <div className="mt-6 flex items-center">
               <div className="h-px flex-1 bg-gray-200 dark:bg-gray-800" />
               <span className="px-3 text-xs uppercase tracking-wider text-gray-500">or continue with</span>
@@ -274,7 +308,7 @@ const Register = () => {
             </div>
 
             {/* Social placeholders */}
-            <div className="mt-4 grid grid-cols-3 gap-3">
+            <div className="mt-4 flex items-center justify-center gap-4">
               <button type="button" title="Google (coming soon)" aria-disabled className="flex items-center justify-center rounded-md border border-gray-200 dark:border-gray-800 py-2 hover:bg-gray-50 dark:hover:bg-gray-900">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" className="h-5 w-5"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12 s5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C33.108,6.053,28.761,4,24,4C12.955,4,4,12.955,4,24 s8.955,20,20,20s20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657 C33.108,6.053,28.761,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/><path fill="#4CAF50" d="M24,44c5.176,0,9.86-1.977,13.409-5.197l-6.191-5.238C29.211,35.091,26.715,36,24,36 c-5.202,0-9.619-3.317-11.277-7.953l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.092,5.609 c0.001-0.001,0.002-0.001,0.003-0.002l6.191,5.238C36.969,39.282,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/></svg>
               </button>

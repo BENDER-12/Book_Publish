@@ -40,6 +40,8 @@ app.use('/api/books', require('./routes/bookRoutes'));
 app.use('/api/chapters', require('./routes/chapterRoutes'));
 app.use('/api/reviews', require('./routes/reviewRoutes'));
 app.use('/api/library', require('./routes/libraryRoutes'));
+app.use('/api/notifications', require('./routes/notificationRoutes'));
+app.use('/api/comments', require('./routes/commentRoutes'));
 
 app.use(errorHandler);
 

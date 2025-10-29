@@ -10,12 +10,14 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBook } from '@fortawesome/free-solid-svg-icons';
+import NotificationsBell from './NotificationsBell';
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { isAuthenticated, user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const role = user?.role;
 
   const isActive = (path) => location.pathname === path;
 
@@ -58,7 +60,7 @@ const Navbar = () => {
               Browse Books
             </Link>
 
-            {isAuthenticated && (
+            {isAuthenticated && role === 'reader' && (
               <>
                 <Link
                   to="/dashboard"
@@ -80,16 +82,10 @@ const Navbar = () => {
                 >
                   My Library
                 </Link>
-                <Link
-                  to="/my-books"
-                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    isActive('/my-books')
-                      ? 'text-blue-600 bg-blue-50'
-                      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                  }`}
-                >
-                  My Books
-                </Link>
+              </>
+            )}
+            {isAuthenticated && (role === 'author' || role === 'admin') && (
+              <>
                 <Link
                   to="/author-dashboard"
                   className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
@@ -100,7 +96,29 @@ const Navbar = () => {
                 >
                   Author
                 </Link>
+                <Link
+                  to="/my-books"
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    isActive('/my-books')
+                      ? 'text-blue-600 bg-blue-50'
+                      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  My Books
+                </Link>
               </>
+            )}
+            {isAuthenticated && role === 'admin' && (
+              <Link
+                to="/admin"
+                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  isActive('/admin')
+                    ? 'text-blue-600 bg-blue-50'
+                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                Admin
+              </Link>
             )}
           </div>
 
@@ -122,6 +140,7 @@ const Navbar = () => {
             </button>
             {isAuthenticated ? (
               <div className="flex items-center space-x-4">
+                <NotificationsBell />
                 <span className="text-sm text-gray-700">Hello, {user?.name}</span>
                 <Link
                   to="/profile"
@@ -194,7 +213,7 @@ const Navbar = () => {
                 Browse Books
               </Link>
               
-              {isAuthenticated && (
+              {isAuthenticated && role === 'reader' && (
                 <>
                   <Link
                     to="/dashboard"
@@ -218,16 +237,20 @@ const Navbar = () => {
                   >
                     My Library
                   </Link>
+                </>
+              )}
+              {isAuthenticated && (role === 'author' || role === 'admin') && (
+                <>
                   <Link
-                    to="/library"
+                    to="/author-dashboard"
                     onClick={closeMobileMenu}
                     className={`block px-3 py-2 rounded-md text-base font-medium ${
-                      isActive('/library')
+                      isActive('/author-dashboard')
                         ? 'text-blue-600 bg-blue-50'
                         : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
                     }`}
                   >
-                    My Library
+                    Author
                   </Link>
                   <Link
                     to="/my-books"
@@ -240,27 +263,20 @@ const Navbar = () => {
                   >
                     My Books
                   </Link>
-                  <Link
-                    to="/profile"
-                    onClick={closeMobileMenu}
-                    className={`flex items-center px-3 py-2 rounded-md text-base font-medium ${
-                      isActive('/profile')
-                        ? 'text-white bg-gradient-to-r from-blue-500 to-indigo-600'
-                        : 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white'
-                    }`}
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                    </svg>
-                    My Account
-                  </Link>
-                  <button
-                    onClick={handleLogout}
-                    className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-50"
-                  >
-                    Logout
-                  </button>
                 </>
+              )}
+              {isAuthenticated && role === 'admin' && (
+                <Link
+                  to="/admin"
+                  onClick={closeMobileMenu}
+                  className={`block px-3 py-2 rounded-md text-base font-medium ${
+                    isActive('/admin')
+                      ? 'text-blue-600 bg-blue-50'
+                      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  Admin
+                </Link>
               )}
               
               {!isAuthenticated && (

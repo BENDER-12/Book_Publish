@@ -6,12 +6,12 @@
  * Shows loading state while authentication is being verified.
  */
 
-import { useLocation } from 'react-router-dom';
+import { useLocation, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { PageLoader } from './Loader';
 
-const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
+const ProtectedRoute = ({ children, roles }) => {
+  const { isAuthenticated, loading, user } = useAuth();
   const location = useLocation();
 
   // Show loading state while verifying authentication
@@ -20,8 +20,17 @@ const ProtectedRoute = ({ children }) => {
   }
 
   if (!isAuthenticated) {
-    // Render nothing when the user is not authenticated
-    return null;
+    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+  }
+
+  // Optional role guard
+  if (roles && roles.length > 0) {
+    const role = user?.role;
+    if (!role || !roles.includes(role)) {
+      // Redirect to appropriate dashboard based on role
+      const target = role === 'admin' ? '/admin' : role === 'author' ? '/author-dashboard' : '/dashboard';
+      return <Navigate to={target} replace />;
+    }
   }
 
   return children;
