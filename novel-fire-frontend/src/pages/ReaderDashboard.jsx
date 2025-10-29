@@ -4,6 +4,12 @@ import { useLibrary } from '../hooks/useLibrary';
 import { CardLoader } from '../components/Loader';
 
 const ReaderDashboard = () => {
+  const toCover = (cover) => {
+    const fallback = 'https://94fa3c88.delivery.rocketcdn.me/en/files/2023/10/bucket-gcp.webp';
+    if (!cover) return fallback;
+    if (/^https?:\/\//i.test(cover)) return cover;
+    return `${import.meta.env.VITE_API_URL}/uploads/${cover}`;
+  };
   const { user } = useAuth();
   const favoriteGenres = user?.favoriteGenres || [];
   const { data: recentBooks, isLoading: recentLoading } = useBooks({ limit: 6 });
@@ -92,13 +98,7 @@ const ReaderDashboard = () => {
                       <div key={book._id} className="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm hover:border-gray-400 cursor-pointer">
                         <div className="flex items-center space-x-3">
                           <div className="flex-shrink-0">
-                            {book.coverImage ? (
-                              <img className="h-16 w-12 rounded object-cover" src={`${import.meta.env.VITE_API_URL}/uploads/${book.coverImage}`} alt={book.title} />
-                            ) : (
-                              <div className="h-16 w-12 bg-gray-200 rounded flex items-center justify-center">
-                                <svg className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
-                              </div>
-                            )}
+                            <img className="h-16 w-12 rounded object-cover" src={toCover(book.coverImage)} alt={book.title} />
                           </div>
                           <div className="min-w-0 flex-1">
                             <span className="absolute inset-0" aria-hidden="true" />
@@ -131,13 +131,7 @@ const ReaderDashboard = () => {
                     <div key={book._id} className="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm hover:border-gray-400 cursor-pointer">
                       <div className="flex items-center space-x-3">
                         <div className="flex-shrink-0">
-                          {book.coverImage ? (
-                            <img className="h-16 w-12 rounded object-cover" src={`${import.meta.env.VITE_API_URL}/uploads/${book.coverImage}`} alt={book.title} />
-                          ) : (
-                            <div className="h-16 w-12 bg-gray-200 rounded flex items-center justify-center">
-                              <svg className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
-                            </div>
-                          )}
+                          <img className="h-16 w-12 rounded object-cover" src={toCover(book.coverImage)} alt={book.title} />
                         </div>
                         <div className="min-w-0 flex-1">
                           <span className="absolute inset-0" aria-hidden="true" />

@@ -61,6 +61,33 @@ const createBook = asyncHandler(async (req, res) => {
   const book = new Book({ title, author, description, genres: parsedGenres, tags: parsedTags, user: req.user._id });
   if (req.file) book.coverImage = req.file.filename;
   const created = await book.save();
+  try {
+    const me = await User.findById(req.user._id).select('followers name');
+    const followerIds = (me?.followers || []).map((id) => String(id));
+    // Active readers of this author in last 30 days
+    const authorBooks = await Book.find({ user: req.user._id }).select('_id');
+    const bookIds = authorBooks.map((b) => b._id);
+    let activeReaderIds = [];
+    if (bookIds.length) {
+      const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+      const entries = await LibraryEntry.find({ book: { $in: bookIds }, lastReadAt: { $gte: since } }).select('user');
+      activeReaderIds = entries.map((e) => String(e.user));
+    }
+    const notifyIds = Array.from(new Set([...followerIds, ...activeReaderIds])).filter((id) => id !== String(req.user._id));
+    if (notifyIds.length) {
+      await Promise.all(
+        notifyIds.map((uid) =>
+          createNotification({
+            userId: uid,
+            type: 'author_new_book',
+            title: 'New book published',
+            body: `${me?.name || 'An author you follow'} published ${book.title}`,
+            data: { bookId: created._id },
+          })
+        )
+      );
+    }
+  } catch {}
   res.status(201).json(created);
 });
 
@@ -106,6 +133,33 @@ const updateBook = asyncHandler(async (req, res) => {
   }
   if (req.file) book.coverImage = req.file.filename;
   const updated = await book.save();
+  try {
+    const entries = await LibraryEntry.find({ book: book._id }).select('user');
+    const userIds = entries.map((e) => String(e.user));
+    // Also notify active readers of this author (who read any of their books recently)
+    const authorBooks = await Book.find({ user: book.user }).select('_id');
+    const bookIds = authorBooks.map((b) => b._id);
+    let activeReaderIds = [];
+    if (bookIds.length) {
+      const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+      const recentEntries = await LibraryEntry.find({ book: { $in: bookIds }, lastReadAt: { $gte: since } }).select('user');
+      activeReaderIds = recentEntries.map((e) => String(e.user));
+    }
+    const notifyIds = Array.from(new Set([...userIds, ...activeReaderIds])).filter((id) => id !== String(book.user));
+    if (notifyIds.length) {
+      await Promise.all(
+        notifyIds.map((uid) =>
+          createNotification({
+            userId: uid,
+            type: 'book_updated',
+            title: 'Book updated',
+            body: `${book.title} has new updates`,
+            data: { bookId: book._id },
+          })
+        )
+      );
+    }
+  } catch {}
   res.json(updated);
 });
 

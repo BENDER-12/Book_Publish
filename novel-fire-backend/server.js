@@ -16,7 +16,7 @@ app.use(express.json());
 
 // Security & performance
 app.use(cors({
-  origin: 'http://localhost:5173', // React dev port
+  origin: '*', // React dev port
   credentials: true
 }));
 const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 200 });
@@ -42,6 +42,7 @@ app.use('/api/reviews', require('./routes/reviewRoutes'));
 app.use('/api/library', require('./routes/libraryRoutes'));
 app.use('/api/notifications', require('./routes/notificationRoutes'));
 app.use('/api/comments', require('./routes/commentRoutes'));
+app.use('/api/payments', require('./routes/paymentRoutes'));
 
 app.use(errorHandler);
 

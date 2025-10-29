@@ -59,6 +59,7 @@ const Navbar = () => {
             >
               Browse Books
             </Link>
+            {/* Payment link removed from authenticated navbar as per request */}
 
             {isAuthenticated && role === 'reader' && (
               <>
@@ -212,7 +213,7 @@ const Navbar = () => {
               >
                 Browse Books
               </Link>
-              
+              {/* payment link removed from mobile menu */}
               {isAuthenticated && role === 'reader' && (
                 <>
                   <Link

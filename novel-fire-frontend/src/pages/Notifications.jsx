@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { notificationsAPI } from '../api/notifications';
+import { useNavigate } from 'react-router-dom';
 
 const Notifications = () => {
+  const navigate = useNavigate();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [filterUnread, setFilterUnread] = useState(false);
@@ -13,6 +15,22 @@ const Notifications = () => {
       setItems(data);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const buildHref = (n) => {
+    const d = n?.data || {};
+    switch (n.type) {
+      case 'chapter_release':
+        return d.bookId ? `/read/${d.bookId}${d.chapterId ? `?chapter=${d.chapterId}` : ''}` : '/books';
+      case 'author_new_book':
+      case 'book_updated':
+      case 'new_review':
+      case 'new_comment':
+      case 'review_reply':
+        return d.bookId ? `/book/${d.bookId}` : '/books';
+      default:
+        return '/notifications';
     }
   };
 
@@ -46,10 +64,15 @@ const Notifications = () => {
           ) : (
             <ul className="divide-y divide-gray-100">
               {items.map((n) => (
-                <li key={n._id} className={`p-4 ${n.read ? 'opacity-70' : ''}`}>
-                  <div className="text-sm font-medium text-gray-900">{n.title}</div>
-                  <div className="text-sm text-gray-600">{n.body}</div>
-                  <div className="mt-1 text-xs text-gray-400">{new Date(n.createdAt).toLocaleString()}</div>
+                <li key={n._id} className={`p-0 ${n.read ? 'opacity-70' : ''}`}>
+                  <button
+                    onClick={() => navigate(buildHref(n))}
+                    className="w-full text-left p-4 hover:bg-gray-50"
+                  >
+                    <div className="text-sm font-medium text-gray-900">{n.title}</div>
+                    <div className="text-sm text-gray-600">{n.body}</div>
+                    <div className="mt-1 text-xs text-gray-400">{new Date(n.createdAt).toLocaleString()}</div>
+                  </button>
                 </li>
               ))}
             </ul>

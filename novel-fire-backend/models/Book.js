@@ -9,6 +9,7 @@ const bookSchema = mongoose.Schema(
     genres: [{ type: String }],
     tags: [{ type: String }],
     coverImage: { type: String },
+
     chaptersCount: { type: Number, default: 0 },
   },
   { 

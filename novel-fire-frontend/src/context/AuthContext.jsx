@@ -83,7 +83,7 @@ const initialState = {
   isAuthenticated: false,
   user: null,
   token: null,
-  loading: false,
+  loading: true,
   error: null,
   pendingVerification: null,
 };
@@ -92,11 +92,10 @@ const initialState = {
 export const AuthProvider = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
 
-  // Check for existing token on app load
+  // Check for existing token on app load (hydrate auth state)
   useEffect(() => {
     const token = localStorage.getItem('token');
     const user = localStorage.getItem('user');
-    
     if (token && user) {
       const parsedUser = JSON.parse(user);
       dispatch({
@@ -111,7 +110,12 @@ export const AuthProvider = ({ children }) => {
           },
         },
       });
+    } else {
+      dispatch({ type: 'SET_LOADING', payload: false });
+      return;
     }
+    // In either case, end hydration loading
+    dispatch({ type: 'SET_LOADING', payload: false });
   }, []);
 
   // Login function

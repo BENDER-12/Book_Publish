@@ -25,6 +25,8 @@ import Reader from './pages/Reader';
 import Favorite from './pages/Favorite';
 import AdminDashboard from './pages/AdminDashboard';
 import Notifications from './pages/Notifications';
+import Payment from './pages/Payment';
+import Landing from './pages/Landing';
 
 function App() {
   return (
@@ -167,9 +169,11 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+              {/* Public routes */}
+              <Route path="/payment" element={<Payment />} />
+              <Route path="/" element={<Landing />} />
               
-              {/* Redirect root to login */}
-              <Route path="/" element={<Navigate to="/login" replace />} />
+              {/* Root handled by Landing */}
               
               {/* 404 fallback */}
               <Route

@@ -2,12 +2,13 @@ const asyncHandler = require('express-async-handler');
 const Comment = require('../models/Comment');
 const Book = require('../models/Book');
 const Chapter = require('../models/Chapter');
+const Review = require('../models/Review');
 const { createNotification } = require('./notificationController');
 
 // GET /api/comments?targetType=book|chapter&targetId=:id
 exports.list = asyncHandler(async (req, res) => {
   const { targetType, targetId } = req.query;
-  if (!['book', 'chapter'].includes(targetType) || !targetId) {
+  if (!['book', 'chapter', 'review'].includes(targetType) || !targetId) {
     return res.status(400).json({ message: 'targetType and targetId are required' });
   }
   const items = await Comment.find({ targetType, targetId }).sort({ createdAt: -1 }).populate('user', 'name avatar');
@@ -36,7 +37,7 @@ exports.create = asyncHandler(async (req, res) => {
         data: { targetType, targetId, commentId: created._id },
       });
     }
-  } else {
+  } else if (targetType === 'chapter') {
     const chapter = await Chapter.findById(targetId).select('book');
     if (chapter) {
       const book = await Book.findById(chapter.book).select('user title');
@@ -50,6 +51,17 @@ exports.create = asyncHandler(async (req, res) => {
           data: { targetType, targetId, commentId: created._id },
         });
       }
+    }
+  } else if (targetType === 'review') {
+    const review = await Review.findById(targetId).select('user book');
+    if (review && String(review.user) !== String(req.user._id)) {
+      await createNotification({
+        userId: review.user,
+        type: 'review_reply',
+        title: 'New reply to your review',
+        body: 'Someone replied to your review.',
+        data: { targetType, targetId, commentId: created._id, bookId: review.book },
+      });
     }
   }
 

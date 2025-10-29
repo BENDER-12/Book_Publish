@@ -1,6 +1,7 @@
 const asyncHandler = require('express-async-handler');
 const LibraryEntry = require('../models/LibraryEntry');
 const Book = require('../models/Book');
+const { createNotification } = require('./notificationController');
 
 // Add book to user's library
 const addToLibrary = asyncHandler(async (req, res) => {
@@ -8,6 +9,18 @@ const addToLibrary = asyncHandler(async (req, res) => {
   const exists = await LibraryEntry.findOne({ user: req.user._id, book });
   if (exists) return res.status(400).json({ message: 'Book already in library' });
   const entry = await LibraryEntry.create({ user: req.user._id, book, lastReadAt: new Date() });
+  try {
+    const b = await Book.findById(book).select('user title');
+    if (b && String(b.user) !== String(req.user._id)) {
+      await createNotification({
+        userId: b.user,
+        type: 'library_add',
+        title: 'Your book was added to a library',
+        body: `A reader added ${b.title} to their library`,
+        data: { bookId: b._id },
+      });
+    }
+  } catch {}
   res.status(201).json(entry);
 });
 

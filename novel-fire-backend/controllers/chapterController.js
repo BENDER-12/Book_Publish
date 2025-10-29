@@ -1,6 +1,9 @@
 const asyncHandler = require('express-async-handler');
 const Chapter = require('../models/Chapter');
 const Book = require('../models/Book');
+const User = require('../models/User');
+const LibraryEntry = require('../models/LibraryEntry');
+const { createNotification } = require('./notificationController');
 
 // @desc    Get chapters for a book
 // @route   GET /api/chapters/book/:bookId
@@ -23,6 +26,37 @@ const createChapter = asyncHandler(async (req, res) => {
   if (parent.user.toString() !== req.user._id.toString()) {
     res.status(403);
     throw new Error('Not authorized to add chapter to this book');
+  }
+  try {
+    const me = await User.findById(req.user._id).select('followers name');
+    const followerIds = (me?.followers || []).map((id) => String(id));
+    const entries = await LibraryEntry.find({ book: parent._id }).select('user');
+    const readerIds = entries.map((e) => String(e.user));
+    // Active readers of this author (recent lastReadAt on any of their books)
+    const authorBooks = await Book.find({ user: req.user._id }).select('_id');
+    const bookIds = authorBooks.map((b) => b._id);
+    let activeReaderIds = [];
+    if (bookIds.length) {
+      const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+      const recentEntries = await LibraryEntry.find({ book: { $in: bookIds }, lastReadAt: { $gte: since } }).select('user');
+      activeReaderIds = recentEntries.map((e) => String(e.user));
+    }
+    const targets = Array.from(new Set([...followerIds, ...readerIds, ...activeReaderIds])).filter(
+      (id) => id !== String(req.user._id)
+    );
+    await Promise.all(
+      targets.map((uid) =>
+        createNotification({
+          type: 'NEW_CHAPTER',
+          user: uid,
+          book: parent._id,
+          chapter: title,
+          author: me.name,
+        })
+      )
+    );
+  } catch (error) {
+    console.error(error);
   }
   const chapter = new Chapter({ title, content, book, user: req.user._id });
   const created = await chapter.save();

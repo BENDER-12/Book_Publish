@@ -3,6 +3,17 @@ import { Link } from 'react-router-dom';
 import { useBooks } from '../hooks/useBooks';
 
 const Books = () => {
+  const toCover = (cover) => {
+    const fallback = '/images.jpg';
+    if (!cover) return fallback;
+    if (/^https?:\/\//i.test(cover)) return cover;
+    // If it's a plain filename or already public path, serve from frontend public
+    if (cover === 'images.jpg' || !cover.includes('/')) {
+      return `/${cover.replace(/^\//, '')}`;
+    }
+    // Otherwise assume it's an upload filename
+    return `${import.meta.env.VITE_API_URL}/uploads/${cover}`;
+  };
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedGenre, setSelectedGenre] = useState('');
   
@@ -120,19 +131,11 @@ const Books = () => {
                         <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200">
                           {/* Book Cover */}
                           <div className="aspect-w-3 aspect-h-4 bg-gray-200">
-                            {book.coverImage ? (
-                              <img
-                                className="w-full h-64 object-cover group-hover:opacity-90 transition-opacity"
-                                src={`${import.meta.env.VITE_API_URL}/uploads/${book.coverImage}`}
-                                alt={book.title}
-                              />
-                            ) : (
-                              <div className="w-full h-64 bg-gray-200 flex items-center justify-center">
-                                <svg className="h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                                </svg>
-                              </div>
-                            )}
+                            <img
+                              className="w-full h-64 object-cover group-hover:opacity-90 transition-opacity"
+                              src={toCover(book.coverImage)}
+                              alt={book.title}
+                            />
                           </div>
 
                           {/* Book Info */}

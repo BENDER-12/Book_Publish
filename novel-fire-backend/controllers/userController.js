@@ -3,6 +3,7 @@ const User = require('../models/User');
 const Book = require('../models/Book');
 const Review = require('../models/Review');
 const Library = require('../models/Library');
+const { createNotification } = require('./notificationController');
 
 // @desc    Get user profile
 // @route   GET /api/users/profile
@@ -107,6 +108,16 @@ const followUser = asyncHandler(async (req, res) => {
   }
   await me.save();
   await target.save();
+  // Notify target user
+  try {
+    await createNotification({
+      userId: target._id,
+      type: 'new_follower',
+      title: 'New follower',
+      body: `${me.name || 'A user'} started following you`,
+      data: { followerId: me._id },
+    });
+  } catch {}
   res.status(200).json({ message: 'Followed', following: me.following });
 });
 
